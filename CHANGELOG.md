@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2025-11-05
+
+### Added - Enhanced Mobile UX
+- Complete mobile UX enhancements guide (880 lines):
+  - Video thumbnail generation with caching
+  - Pull-to-refresh for feeds and maps
+  - Map search & filter components
+  - Local caching system (AsyncStorage + FileSystem)
+  - Share functionality for NFTs
+  - Performance-optimized FlatList
+- Component implementations:
+  - `VideoThumbnail` - Auto-generate and cache video thumbnails
+  - `MapSearch` - Search bar with filter modal
+  - `ShareButton` - Native share dialog with clipboard fallback
+  - `OptimizedFlatList` - FlatList with performance optimizations
+- Utility classes:
+  - `ThumbnailGenerator` - Video thumbnail generation and caching
+  - `CacheManager` - Data and image caching system
+- Implementation examples for:
+  - Feed screen with all features
+  - Map screen with search/filters
+  - App initialization patterns
+
+### Technical Details
+- **Thumbnail Generation**: expo-video-thumbnails with FileSystem caching
+- **Local Caching**: AsyncStorage for data, FileSystem for images
+- **Performance**: FlatList optimizations (windowing, batching, layout)
+- **Sharing**: Native Share API with platform-specific handling
+- **Pull-to-Refresh**: RefreshControl integrated in all list screens
+
+### Changed
+- Version bump to 0.4.1
+- Mobile app ready for enhanced UX implementation
+
 ## [0.4.0] - 2025-11-05
 
 ### Added - Social Features
