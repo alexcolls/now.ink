@@ -5,6 +5,120 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2025-11-05
+
+### Added - Web App MVP Guide
+- Complete Nuxt 4 web application guide (716 lines):
+  - Full project setup with Nuxt 4, TailwindCSS, Solana wallet
+  - Interactive map with MapLibre GL + Maptiler
+  - Chronological feed interface
+  - User profiles and social features
+  - Responsive design (desktop + mobile web)
+- Architecture & structure:
+  - Complete file structure and organization
+  - Component hierarchy (Map, Feed, Profile, Wallet, Layout)
+  - Composables for API, wallet, auth, NFTs, feed
+  - Pinia stores for state management
+  - Page routing (index, feed, profile, NFT details, search)
+- Implementation guides:
+  - InteractiveMap.vue with marker clustering
+  - FeedList.vue with infinite scroll
+  - WalletButton.vue with Phantom integration
+  - useApi composable with full endpoint coverage
+  - useWallet composable with auto-reconnect
+- Configuration files:
+  - nuxt.config.ts with modules and runtime config
+  - tailwind.config.js with brand colors
+  - .env.sample with all required variables
+  - TypeScript types for NFTs, users, API
+- Deployment:
+  - Vercel deployment instructions
+  - Netlify static generation
+  - Development and build commands
+
+### Technical Details
+- **Framework**: Nuxt 4 (Vue 3 + Vite + TypeScript)
+- **Maps**: MapLibre GL with Maptiler API integration
+- **Wallet**: Solana Wallet Adapter for Phantom/Solflare
+- **Styling**: TailwindCSS 3 with custom theme
+- **State**: Pinia stores + Vue Composition API
+- **HTTP**: ofetch (Nuxt native) with auth headers
+
+### Changed
+- Version bump to 0.5.0 (major web app milestone)
+- Project ready for full web interface implementation
+
+## [0.4.1] - 2025-11-05
+
+### Added - Enhanced Mobile UX
+- Complete mobile UX enhancements guide (880 lines):
+  - Video thumbnail generation with caching
+  - Pull-to-refresh for feeds and maps
+  - Map search & filter components
+  - Local caching system (AsyncStorage + FileSystem)
+  - Share functionality for NFTs
+  - Performance-optimized FlatList
+- Component implementations:
+  - `VideoThumbnail` - Auto-generate and cache video thumbnails
+  - `MapSearch` - Search bar with filter modal
+  - `ShareButton` - Native share dialog with clipboard fallback
+  - `OptimizedFlatList` - FlatList with performance optimizations
+- Utility classes:
+  - `ThumbnailGenerator` - Video thumbnail generation and caching
+  - `CacheManager` - Data and image caching system
+- Implementation examples for:
+  - Feed screen with all features
+  - Map screen with search/filters
+  - App initialization patterns
+
+### Technical Details
+- **Thumbnail Generation**: expo-video-thumbnails with FileSystem caching
+- **Local Caching**: AsyncStorage for data, FileSystem for images
+- **Performance**: FlatList optimizations (windowing, batching, layout)
+- **Sharing**: Native Share API with platform-specific handling
+- **Pull-to-Refresh**: RefreshControl integrated in all list screens
+
+### Changed
+- Version bump to 0.4.1
+- Mobile app ready for enhanced UX implementation
+
+## [0.4.0] - 2025-11-05
+
+### Added - Social Features
+- Complete social API implementation:
+  - Follow/unfollow user endpoints
+  - Get followers and following lists
+  - Check following status
+  - User search by username or wallet
+  - Detailed user profile with stats (followers/following/NFT counts)
+  - Chronological feed from followed users
+- Backend services (498 lines):
+  - `user/social.go` - Follow management, user search, profile stats
+  - `nft/feed.go` - Chronological feed with creator info
+- API handlers (231 lines):
+  - `social_handlers.go` - 8 social endpoints
+  - Pagination support for all list endpoints
+  - Self-follow prevention
+  - Duplicate follow protection
+- Social features documentation (535 lines):
+  - Complete API endpoint reference
+  - Client integration examples (JS/TS, React Native)
+  - Feed algorithm explanation
+  - Database schema and indexes
+  - Security and performance notes
+  - Future enhancement roadmap
+
+### Technical Details
+- **Database**: Leverages existing `follows` table with indexes
+- **Feed Algorithm**: Chronological only, no algorithmic ranking
+- **Authentication**: JWT required for follow/unfollow and feed
+- **Pagination**: Limit/offset for all list endpoints
+- **Performance**: Indexed queries for fast follow lookups
+
+### Changed
+- Version bump to 0.4.0 (major social feature milestone)
+- Handler routes extended with social and user endpoints
+
 ## [0.3.3] - 2025-11-05
 
 ### Added - Monitoring & Analytics
