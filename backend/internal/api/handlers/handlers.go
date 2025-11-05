@@ -199,9 +199,7 @@ func (h *Handlers) HandleSaveStream(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to save video"})
 	}
 
-	// TODO: Upload to Arweave (for now, use local path)
-	arweaveTxID := "PENDING_ARWEAVE_UPLOAD"
-	videoURL := videoPath // In production: ar://<txid>
+	videoURL := videoPath // Local path, will be uploaded to Arweave during minting
 
 	// End the stream
 	_, err = h.StreamService.EndStream(c.Context(), streamID)
@@ -220,19 +218,24 @@ func (h *Handlers) HandleSaveStream(c *fiber.Ctx) error {
 		Timestamp:  stream.StartedAt,
 	}
 
-	// Mint NFT (currently returns mock response)
+	// Mint NFT
 	mintResp, err := h.NFTService.Mint(c.Context(), mintReq)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	// Update stream with mint info
-	// TODO: Add UpdateStream method to stream service
+	err = h.StreamService.UpdateStreamMintInfo(c.Context(), streamID, mintResp.MintAddress, mintResp.ArweaveHash)
+	if err != nil {
+		// Log error but don't fail - NFT was already minted
+		fmt.Printf("⚠️  Failed to update stream with mint info: %v\n", err)
+	}
 
 	return c.JSON(fiber.Map{
 		"stream_id":    streamID,
 		"mint_address": mintResp.MintAddress,
-		"arweave_tx":   arweaveTxID,
+		"arweave_tx":   mintResp.ArweaveHash,
+		"metadata_uri":  mintResp.MetadataURI,
 		"status":       "minted",
 		"message":      "NFT minted successfully!",
 	})
