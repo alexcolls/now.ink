@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/alexcolls/now.ink/backend/internal/api/handlers"
+	"github.com/alexcolls/now.ink/backend/internal/db"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -17,6 +18,12 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("⚠️  No .env file found, using environment variables")
 	}
+
+	// Connect to database
+	if err := db.Connect(); err != nil {
+		log.Fatal("❌ Failed to connect to database:", err)
+	}
+	defer db.Close()
 
 	// Create Fiber app
 	app := fiber.New(fiber.Config{
