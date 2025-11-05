@@ -5,6 +5,96 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] - 2025-11-05
+
+### Added - Marketing & Launch Assets
+- Complete landing page (HTML + embedded CSS, responsive)
+- Marketing assets guide (606 lines) with:
+  - App Store screenshot templates & specifications
+  - Google Play screenshot templates & specifications
+  - Feature graphic design guidelines
+  - App icon requirements
+  - Social media graphics (OG image, Twitter cards, Instagram)
+  - Press kit structure and brand guidelines
+  - Store listing copy (iOS & Android)
+  - Launch email templates
+  - Video content scripts
+  - Analytics & tracking setup
+  - Pre-launch checklist
+  - Launch day plan
+  - Post-launch content calendar
+- Official press release (272 lines) including:
+  - Media-ready announcement
+  - Fact sheet
+  - Beta tester quotes templates
+  - Interview request information
+  - Distribution list (tech, crypto, developer media)
+  - Boilerplate company description
+- Marketing README with deployment instructions
+- PROJECT-STATUS.md - Comprehensive project overview
+
+### Changed
+- Project now 100% ready for public launch
+- All marketing materials prepared and documented
+- Version bump to 0.3.2
+
+## [0.3.1] - 2025-11-05
+
+### Added - Developer Tools & CI/CD
+- GitHub Actions CI/CD pipeline with 8 jobs:
+  - Backend Go tests with PostgreSQL service
+  - golangci-lint for backend code quality
+  - TypeScript checks for mobile + blockchain
+  - Prettier formatting validation
+  - Docker build testing (main branch only)
+  - Trivy security scanning with SARIF upload
+  - Markdown link checking
+  - Deploy notification step
+- Pre-commit hooks configuration:
+  - Go formatting and linting
+  - TypeScript checks
+  - Markdown formatting
+  - Conventional commit messages
+- Enhanced .gitignore with wallet protection
+
+### Added - Mobile Deployment
+- Complete mobile deployment guide (535 lines)
+- EAS build configuration documented
+- iOS TestFlight setup instructions
+- Android Play Store setup instructions
+- Store listing templates
+- Screenshot requirements
+
+### Added - Business Essentials
+- Privacy Policy (269 lines) - GDPR compliant
+- Terms of Service (354 lines) - App store ready
+- Age restrictions documented (13+)
+- Data handling policies
+- Blockchain permanence disclosures
+
+### Added - Documentation Updates
+- CHANGELOG.md created with full version history
+- LICENSE with dual licensing model (free personal / paid commercial)
+- CONTRIBUTING.md with 332-line contribution guidelines
+- README.md updated with badges and roadmap
+
+## [0.3.0] - 2025-11-05
+
+### Added - Solana Production Setup
+- Complete Solana production guide (458 lines):
+  - Wallet generation instructions
+  - Devnet & mainnet configuration
+  - RPC provider options and comparison
+  - Cost estimates for operations
+  - Security best practices
+  - Monitoring scripts and balance checking
+  - Emergency procedures
+
+### Added - Production Database
+- Automated PostgreSQL + PostGIS setup script
+- Database backup and restore procedures
+- Performance optimization settings
+
 ## [0.2.0] - 2025-11-05
 
 ### Added - Deployment Infrastructure
