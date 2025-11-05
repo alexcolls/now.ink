@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as Location from 'expo-location';
+import * as FileSystem from 'expo-file-system';
 import { useWallet } from '../context/WalletContext';
+import apiClient from '../services/api';
 
 export default function CameraScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -10,8 +12,11 @@ export default function CameraScreen() {
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [cameraType, setCameraType] = useState<CameraType>('back');
+  const [isMinting, setIsMinting] = useState(false);
+  const [mintingProgress, setMintingProgress] = useState('');
+  const [streamId, setStreamId] = useState<string | null>(null);
   const cameraRef = useRef<CameraView>(null);
-  const { isConnected } = useWallet();
+  const { isConnected, publicKey } = useWallet();
 
   useEffect(() => {
     (async () => {
@@ -90,7 +95,7 @@ export default function CameraScreen() {
   };
 
   const handleMintNFT = async (videoUri: string) => {
-    if (!isConnected) {
+    if (!isConnected || !publicKey) {
       Alert.alert('Connect Wallet', 'Please connect your Solana wallet first');
       return;
     }
@@ -100,18 +105,83 @@ export default function CameraScreen() {
       return;
     }
 
+    setIsMinting(true);
+    setMintingProgress('Starting stream...');
+
     try {
-      // TODO: Upload video to backend
-      // TODO: Backend mints NFT on Solana
-      // TODO: Show minting progress
-      console.log('🪙 Minting NFT...');
-      console.log('  Video:', videoUri);
-      console.log('  Location:', location.coords);
+      // 1. Start stream on backend
+      console.log('🎬 Starting stream...');
+      const streamResponse = await apiClient.startStream({
+        title: `Moment at ${new Date().toLocaleTimeString()}`,
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        is_public: true,
+      });
       
-      Alert.alert('Success!', 'Your moment has been minted on Solana! 🎉');
+      const newStreamId = streamResponse.id;
+      setStreamId(newStreamId);
+      console.log('✅ Stream started:', newStreamId);
+
+      // 2. Upload video file
+      setMintingProgress('Uploading video...');
+      console.log('📤 Uploading video...');
+      
+      const videoInfo = await FileSystem.getInfoAsync(videoUri);
+      if (!videoInfo.exists) {
+        throw new Error('Video file not found');
+      }
+
+      const formData = new FormData();
+      formData.append('video', {
+        uri: videoUri,
+        name: 'moment.mp4',
+        type: 'video/mp4',
+      } as any);
+
+      // Upload to backend (backend will handle Arweave upload)
+      await apiClient.saveStream(newStreamId, formData);
+      console.log('✅ Video uploaded');
+
+      // 3. Wait for NFT minting (backend does this)
+      setMintingProgress('Minting NFT on Solana...');
+      console.log('🪙 Minting NFT...');
+      
+      // Poll for stream status to get mint address
+      let attempts = 0;
+      const maxAttempts = 30; // 30 seconds
+      let mintAddress = null;
+
+      while (attempts < maxAttempts && !mintAddress) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const stream = await apiClient.getStream(newStreamId);
+        if (stream.mint_address) {
+          mintAddress = stream.mint_address;
+          break;
+        }
+        attempts++;
+      }
+
+      setIsMinting(false);
+      setMintingProgress('');
+      
+      if (mintAddress) {
+        Alert.alert(
+          'Success! 🎉',
+          `Your moment has been minted!\n\nNFT: ${mintAddress.slice(0, 8)}...${mintAddress.slice(-8)}`,
+          [{ text: 'OK', onPress: () => setStreamId(null) }]
+        );
+      } else {
+        Alert.alert(
+          'Processing...',
+          'Your moment is being minted. Check back in your profile later!',
+          [{ text: 'OK', onPress: () => setStreamId(null) }]
+        );
+      }
     } catch (error) {
       console.error('❌ Minting failed:', error);
-      Alert.alert('Error', 'Failed to mint NFT. Please try again.');
+      setIsMinting(false);
+      setMintingProgress('');
+      Alert.alert('Error', `Failed to mint NFT: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -150,6 +220,17 @@ export default function CameraScreen() {
             <Text style={styles.recordingText}>
               REC {formatDuration(recordingDuration)}
             </Text>
+          </View>
+        )}
+
+        {/* Minting progress overlay */}
+        {isMinting && (
+          <View style={styles.mintingOverlay}>
+            <View style={styles.mintingModal}>
+              <ActivityIndicator size="large" color="#fff" />
+              <Text style={styles.mintingText}>{mintingProgress}</Text>
+              <Text style={styles.mintingSubtext}>Please wait...</Text>
+            </View>
           </View>
         )}
 
@@ -265,6 +346,33 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     width: 30,
     height: 30,
+  },
+  mintingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  },
+  mintingModal: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    padding: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    minWidth: 200,
+  },
+  mintingText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 20,
+    textAlign: 'center',
+  },
+  mintingSubtext: {
+    color: '#aaa',
+    fontSize: 14,
+    marginTop: 8,
+    textAlign: 'center',
   },
   button: {
     backgroundColor: '#007AFF',

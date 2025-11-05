@@ -24,9 +24,14 @@ interface Stream {
   user_id: string;
   title: string;
   is_live: boolean;
+  is_public: boolean;
   started_at: string;
+  ended_at?: string;
   latitude: number;
   longitude: number;
+  viewer_count: number;
+  mint_address?: string;
+  arweave_hash?: string;
 }
 
 interface MintResponse {
@@ -68,10 +73,16 @@ export const apiClient = {
     return data;
   },
 
-  saveStream: async (streamId: string, videoUri: string): Promise<MintResponse> => {
-    // TODO: Upload video file
-    const { data } = await api.post(`/streams/${streamId}/save`, {
-      video_uri: videoUri,
+  getStream: async (streamId: string): Promise<Stream> => {
+    const { data } = await api.get(`/streams/${streamId}`);
+    return data;
+  },
+
+  saveStream: async (streamId: string, formData: FormData): Promise<MintResponse> => {
+    const { data } = await api.post(`/streams/${streamId}/save`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     });
     return data;
   },
