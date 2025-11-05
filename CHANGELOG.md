@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2025-11-05
+
+### Added - Web App MVP Guide
+- Complete Nuxt 4 web application guide (716 lines):
+  - Full project setup with Nuxt 4, TailwindCSS, Solana wallet
+  - Interactive map with MapLibre GL + Maptiler
+  - Chronological feed interface
+  - User profiles and social features
+  - Responsive design (desktop + mobile web)
+- Architecture & structure:
+  - Complete file structure and organization
+  - Component hierarchy (Map, Feed, Profile, Wallet, Layout)
+  - Composables for API, wallet, auth, NFTs, feed
+  - Pinia stores for state management
+  - Page routing (index, feed, profile, NFT details, search)
+- Implementation guides:
+  - InteractiveMap.vue with marker clustering
+  - FeedList.vue with infinite scroll
+  - WalletButton.vue with Phantom integration
+  - useApi composable with full endpoint coverage
+  - useWallet composable with auto-reconnect
+- Configuration files:
+  - nuxt.config.ts with modules and runtime config
+  - tailwind.config.js with brand colors
+  - .env.sample with all required variables
+  - TypeScript types for NFTs, users, API
+- Deployment:
+  - Vercel deployment instructions
+  - Netlify static generation
+  - Development and build commands
+
+### Technical Details
+- **Framework**: Nuxt 4 (Vue 3 + Vite + TypeScript)
+- **Maps**: MapLibre GL with Maptiler API integration
+- **Wallet**: Solana Wallet Adapter for Phantom/Solflare
+- **Styling**: TailwindCSS 3 with custom theme
+- **State**: Pinia stores + Vue Composition API
+- **HTTP**: ofetch (Nuxt native) with auth headers
+
+### Changed
+- Version bump to 0.5.0 (major web app milestone)
+- Project ready for full web interface implementation
+
 ## [0.4.1] - 2025-11-05
 
 ### Added - Enhanced Mobile UX
