@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2025-11-05
+
+### Added - Social Features
+- Complete social API implementation:
+  - Follow/unfollow user endpoints
+  - Get followers and following lists
+  - Check following status
+  - User search by username or wallet
+  - Detailed user profile with stats (followers/following/NFT counts)
+  - Chronological feed from followed users
+- Backend services (498 lines):
+  - `user/social.go` - Follow management, user search, profile stats
+  - `nft/feed.go` - Chronological feed with creator info
+- API handlers (231 lines):
+  - `social_handlers.go` - 8 social endpoints
+  - Pagination support for all list endpoints
+  - Self-follow prevention
+  - Duplicate follow protection
+- Social features documentation (535 lines):
+  - Complete API endpoint reference
+  - Client integration examples (JS/TS, React Native)
+  - Feed algorithm explanation
+  - Database schema and indexes
+  - Security and performance notes
+  - Future enhancement roadmap
+
+### Technical Details
+- **Database**: Leverages existing `follows` table with indexes
+- **Feed Algorithm**: Chronological only, no algorithmic ranking
+- **Authentication**: JWT required for follow/unfollow and feed
+- **Pagination**: Limit/offset for all list endpoints
+- **Performance**: Indexed queries for fast follow lookups
+
+### Changed
+- Version bump to 0.4.0 (major social feature milestone)
+- Handler routes extended with social and user endpoints
+
 ## [0.3.3] - 2025-11-05
 
 ### Added - Monitoring & Analytics

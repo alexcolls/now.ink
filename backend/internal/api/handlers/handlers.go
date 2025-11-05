@@ -47,6 +47,20 @@ func (h *Handlers) RegisterRoutes(api fiber.Router) {
 	nfts.Get("/", h.HandleListNFTs)
 	nfts.Get("/:mint_address", h.HandleGetNFT)
 	nfts.Get("/:mint_address/playback", h.HandleGetPlayback)
+
+	// Social routes (authenticated)
+	social := api.Group("/social", middleware.AuthRequired())
+	social.Post("/follow/:user_id", h.HandleFollowUser)
+	social.Delete("/follow/:user_id", h.HandleUnfollowUser)
+	social.Get("/following/:user_id/check", h.HandleCheckFollowing)
+	social.Get("/feed", h.HandleGetFeed)
+
+	// User routes
+	users := api.Group("/users")
+	users.Get("/search", h.HandleSearchUsers)
+	users.Get("/:user_id", h.HandleGetUserProfile)
+	users.Get("/:user_id/followers", h.HandleGetFollowers)
+	users.Get("/:user_id/following", h.HandleGetFollowing)
 }
 
 // HandleNonce generates a nonce for wallet signature
