@@ -114,15 +114,26 @@ func (h *Handlers) HandleVerify(c *fiber.Ctx) error {
 func (h *Handlers) HandleStartStream(c *fiber.Ctx) error {
 	var req stream.StartStreamRequest
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(400).JSON(fiber.Map{"error": "invalid request"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request"})
 	}
 
-	// TODO: Get user ID from JWT
-	req.UserID = "test-user-id"
+	// Get wallet address from JWT context
+	walletAddress, ok := c.Locals("wallet_address").(string)
+	if !ok || walletAddress == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "unauthorized"})
+	}
+
+	// Get user from wallet address
+	user, err := h.UserService.GetUserByWallet(walletAddress)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "user not found"})
+	}
+
+	req.UserID = user.ID.String()
 
 	stream, err := h.StreamService.StartStream(c.Context(), &req)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	return c.JSON(stream)
