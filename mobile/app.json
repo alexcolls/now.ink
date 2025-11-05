@@ -1,0 +1,60 @@
+{
+  "expo": {
+    "name": "now.ink",
+    "slug": "now-ink",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "ink.now.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "now.ink needs camera access to record live moments and mint them as NFTs",
+        "NSMicrophoneUsageDescription": "now.ink needs microphone access for video recording",
+        "NSLocationWhenInUseUsageDescription": "now.ink needs your location to geo-tag your moments on the blockchain",
+        "NSLocationAlwaysUsageDescription": "now.ink needs your location to geo-tag your moments on the blockchain"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#000000"
+      },
+      "package": "ink.now.app",
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ],
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "now.ink needs camera access to record live moments and mint them as NFTs"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "now.ink needs your location to geo-tag your moments on the blockchain"
+        }
+      ]
+    ]
+  }
+}
