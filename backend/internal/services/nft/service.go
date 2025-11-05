@@ -8,7 +8,6 @@ import (
 
 	"github.com/alexcolls/now.ink/backend/internal/blockchain"
 	"github.com/alexcolls/now.ink/backend/internal/db"
-	"github.com/google/uuid"
 )
 
 // Service handles NFT minting operations
@@ -45,6 +44,36 @@ type MintResponse struct {
 	MintedAt     time.Time `json:"minted_at"`
 }
 
+// Mint mints a new NFT on Solana
+func (s *Service) Mint(ctx context.Context, req *MintRequest) (*MintResponse, error) {
+	// For MVP, use blockchain client to get mock response
+	// In production, this will call Metaplex SDK
+	mintOpts := blockchain.MintOptions{
+		CreatorWallet: req.UserWallet,
+		MetadataURI:   "ar://pending",
+		ArweaveTxID:   "pending",
+		Title:         req.Title,
+		Latitude:      req.Latitude,
+		Longitude:     req.Longitude,
+		Duration:      req.Duration,
+	}
+
+	result, err := s.solanaClient.MintNFT(ctx, mintOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: Save to database
+
+	return &MintResponse{
+		MintAddress: result.MintAddress,
+		MetadataURI: result.MetadataURI,
+		ArweaveHash: result.ArweaveTxID,
+		Transaction: "pending",
+		Status:      result.Status,
+		MintedAt:    time.Now(),
+	}, nil
+}
 
 // GetNFT retrieves NFT details by mint address
 func (s *Service) GetNFT(ctx context.Context, mintAddress string) (*NFTDetails, error) {
