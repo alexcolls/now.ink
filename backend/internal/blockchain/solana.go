@@ -1,9 +1,14 @@
 package blockchain
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
 	"os"
+	"os/exec"
+	"time"
 
 	"github.com/gagliardetto/solana-go"
 	"github.com/gagliardetto/solana-go/rpc"
@@ -82,20 +87,107 @@ func (s *SolanaClient) VerifySignature(publicKey string, message []byte, signatu
 	return true, nil
 }
 
-// MintNFT mints an NFT on Solana (placeholder for Metaplex integration)
-// In production, this would use Metaplex SDK to create the NFT
+// MintNFT mints an NFT on Solana using Metaplex (calls TypeScript script)
 func (s *SolanaClient) MintNFT(ctx context.Context, opts MintOptions) (*MintResult, error) {
-	// TODO: Integrate with Metaplex SDK
-	// For MVP, we return a mock response
-	// The actual minting should be done via the blockchain/scripts/mint-test.ts
+	// Determine if we should use real minting or mock
+	useRealMinting := os.Getenv("USE_REAL_MINTING") == "true"
+	
+	if !useRealMinting {
+		// Mock mode for development
+		log.Println("⏳ Mock minting mode (set USE_REAL_MINTING=true for production)")
+		return &MintResult{
+			MintAddress:  "MOCK_MINT_" + opts.CreatorWallet[:min(8, len(opts.CreatorWallet))],
+			MetadataURI:  opts.MetadataURI,
+			ArweaveTxID:  opts.ArweaveTxID,
+			Status:       "minted",
+			Network:      s.network,
+		}, nil
+	}
+	
+	// Real minting via TypeScript/Metaplex
+	return s.mintWithMetaplex(ctx, opts)
+}
+
+// mintWithMetaplex calls the TypeScript minting script
+func (s *SolanaClient) mintWithMetaplex(ctx context.Context, opts MintOptions) (*MintResult, error) {
+	log.Println("⚡ Real Metaplex minting...")
+	
+	// Construct script path
+	scriptPath := os.Getenv("BLOCKCHAIN_SCRIPTS_PATH")
+	if scriptPath == "" {
+		scriptPath = "./blockchain/scripts"
+	}
+	
+	// Create temp output file
+	outputFile := fmt.Sprintf("/tmp/mint-result-%d.json", time.Now().UnixNano())
+	defer os.Remove(outputFile)
+	
+	// Build command
+	cmd := exec.CommandContext(ctx,
+		"npx", "tsx",
+		fmt.Sprintf("%s/mint-nft.ts", scriptPath),
+		"--metadata-uri", opts.MetadataURI,
+		"--name", opts.Title,
+		"--creator-wallet", opts.CreatorWallet,
+		"--network", s.network,
+		"--output", outputFile,
+	)
+	
+	// Set working directory
+	cmd.Dir = scriptPath
+	
+	// Capture output
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	
+	// Run command with timeout
+	if err := cmd.Run(); err != nil {
+		log.Printf("❌ Minting command failed: %v", err)
+		log.Printf("stdout: %s", stdout.String())
+		log.Printf("stderr: %s", stderr.String())
+		return nil, fmt.Errorf("minting failed: %w", err)
+	}
+	
+	// Read result
+	resultData, err := os.ReadFile(outputFile)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read mint result: %w", err)
+	}
+	
+	var result struct {
+		Success      bool   `json:"success"`
+		MintAddress  string `json:"mint_address"`
+		MetadataURI  string `json:"metadata_uri"`
+		Error        string `json:"error"`
+		ExplorerURL  string `json:"explorer_url"`
+	}
+	
+	if err := json.Unmarshal(resultData, &result); err != nil {
+		return nil, fmt.Errorf("failed to parse mint result: %w", err)
+	}
+	
+	if !result.Success {
+		return nil, fmt.Errorf("minting failed: %s", result.Error)
+	}
+	
+	log.Printf("✅ NFT minted: %s", result.MintAddress)
+	log.Printf("🔍 View: %s", result.ExplorerURL)
 	
 	return &MintResult{
-		MintAddress:  "MOCK_MINT_" + opts.CreatorWallet[:8],
-		MetadataURI:  opts.MetadataURI,
+		MintAddress:  result.MintAddress,
+		MetadataURI:  result.MetadataURI,
 		ArweaveTxID:  opts.ArweaveTxID,
-		Status:       "pending",
+		Status:       "minted",
 		Network:      s.network,
 	}, nil
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 // MintOptions contains NFT minting parameters
