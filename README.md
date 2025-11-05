@@ -1,0 +1,2 @@
+# now.ink
+🌍 now.ink
