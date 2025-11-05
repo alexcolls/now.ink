@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+
 	"github.com/alexcolls/now.ink/backend/internal/api/middleware"
 	"github.com/alexcolls/now.ink/backend/internal/models"
 	"github.com/alexcolls/now.ink/backend/internal/services/nft"
@@ -155,29 +157,92 @@ func (h *Handlers) HandleEndStream(c *fiber.Ctx) error {
 func (h *Handlers) HandleSaveStream(c *fiber.Ctx) error {
 	streamID := c.Params("id")
 
-	// TODO: Fetch stream details
-	// TODO: Upload video to backend storage
-	// TODO: Call NFT service to mint
-
-	mintReq := &nft.MintRequest{
-		VideoURL:   "placeholder-video-url",
-		Title:      "Test Moment",
-		UserWallet: "test-wallet",
-		Latitude:   40.7128,
-		Longitude:  -74.0060,
-		Duration:   42,
+	// Get wallet address from JWT
+	walletAddress, ok := c.Locals("wallet_address").(string)
+	if !ok || walletAddress == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "unauthorized"})
 	}
 
+	// Parse multipart form
+	file, err := c.FormFile("video")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "video file required"})
+	}
+
+	// Validate file size (max 100MB for MVP)
+	if file.Size > 100*1024*1024 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "video file too large (max 100MB)"})
+	}
+
+	// Validate file type
+	contentType := file.Header.Get("Content-Type")
+	if contentType != "video/mp4" && contentType != "video/quicktime" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "only mp4 and mov videos supported"})
+	}
+
+	// Fetch stream details from database
+	stream, err := h.StreamService.GetStream(c.Context(), streamID)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "stream not found"})
+	}
+
+	// Verify ownership
+	user, err := h.UserService.GetUserByWallet(walletAddress)
+	if err != nil || stream.UserID != user.ID.String() {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "not authorized to save this stream"})
+	}
+
+	// Save video file to temporary storage
+	// In production, this would go to S3 or similar
+	videoPath := fmt.Sprintf("/tmp/nowink-videos/%s.mp4", streamID)
+	if err := c.SaveFile(file, videoPath); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to save video"})
+	}
+
+	// TODO: Upload to Arweave (for now, use local path)
+	arweaveTxID := "PENDING_ARWEAVE_UPLOAD"
+	videoURL := videoPath // In production: ar://<txid>
+
+	// End the stream
+	_, err = h.StreamService.EndStream(c.Context(), streamID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to end stream"})
+	}
+
+	// Prepare minting request
+	mintReq := &nft.MintRequest{
+		VideoURL:   videoURL,
+		Title:      stream.Title,
+		UserWallet: walletAddress,
+		Latitude:   stream.Latitude,
+		Longitude:  stream.Longitude,
+		Duration:   calculateDuration(stream),
+		Timestamp:  stream.StartedAt,
+	}
+
+	// Mint NFT (currently returns mock response)
 	mintResp, err := h.NFTService.Mint(c.Context(), mintReq)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
+	// Update stream with mint info
+	// TODO: Add UpdateStream method to stream service
+
 	return c.JSON(fiber.Map{
-		"stream_id": streamID,
-		"mint":      mintResp,
-		"message":   "NFT minting in progress",
+		"stream_id":    streamID,
+		"mint_address": mintResp.MintAddress,
+		"arweave_tx":   arweaveTxID,
+		"status":       "minted",
+		"message":      "NFT minted successfully!",
 	})
+}
+
+func calculateDuration(s *stream.Stream) int {
+	if s.EndedAt == nil {
+		return 0
+	}
+	return int(s.EndedAt.Sub(s.StartedAt).Seconds())
 }
 
 // HandleListLiveStreams lists currently live streams

@@ -8,19 +8,22 @@ import (
 
 	"github.com/alexcolls/now.ink/backend/internal/blockchain"
 	"github.com/alexcolls/now.ink/backend/internal/db"
-	"github.com/google/uuid"
+	"github.com/alexcolls/now.ink/backend/internal/storage"
 )
 
 // Service handles NFT minting operations
 type Service struct {
-	solanaClient *blockchain.SolanaClient
+	solanaClient  *blockchain.SolanaClient
+	arweaveClient *storage.ArweaveClient
 }
 
 // NewService creates a new NFT service
 func NewService() *Service {
-	client, _ := blockchain.NewSolanaClient()
+	solanaClient, _ := blockchain.NewSolanaClient()
+	arweaveClient, _ := storage.NewArweaveClient()
 	return &Service{
-		solanaClient: client,
+		solanaClient:  solanaClient,
+		arweaveClient: arweaveClient,
 	}
 }
 
@@ -45,6 +48,86 @@ type MintResponse struct {
 	MintedAt     time.Time `json:"minted_at"`
 }
 
+// Mint mints a new NFT on Solana
+func (s *Service) Mint(ctx context.Context, req *MintRequest) (*MintResponse, error) {
+	// 1. Upload video to Arweave
+	videoMetadata := storage.VideoMetadata{
+		Title:     req.Title,
+		Creator:   req.UserWallet,
+		Latitude:  req.Latitude,
+		Longitude: req.Longitude,
+		Timestamp: req.Timestamp,
+		Duration:  req.Duration,
+	}
+
+	videoTxID, err := s.arweaveClient.UploadVideo(ctx, req.VideoURL, videoMetadata)
+	if err != nil {
+		return nil, fmt.Errorf("failed to upload video to Arweave: %w", err)
+	}
+
+	videoArweaveURL := fmt.Sprintf("ar://%s", videoTxID)
+
+	// 2. Create and upload metadata JSON to Arweave
+	nftMetadata := storage.NFTMetadata{
+		Name:                 req.Title,
+		Symbol:               "NOWINK",
+		Description:          fmt.Sprintf("A moment captured at %.6f, %.6f on %s", req.Latitude, req.Longitude, req.Timestamp.Format("2006-01-02")),
+		SellerFeeBasisPoints: 500, // 5% platform commission
+		AnimationURL:         videoArweaveURL,
+		ExternalURL:          "https://now.ink",
+		Attributes: []storage.MetadataAttribute{
+			{TraitType: "Latitude", Value: req.Latitude},
+			{TraitType: "Longitude", Value: req.Longitude},
+			{TraitType: "Timestamp", Value: req.Timestamp.Format(time.RFC3339)},
+			{TraitType: "Duration", Value: req.Duration},
+			{TraitType: "Location Type", Value: "GPS Coordinate"},
+		},
+		Properties: storage.MetadataProperties{
+			Category: "video",
+			Files: []storage.MetadataFile{
+				{URI: videoArweaveURL, Type: "video/mp4"},
+			},
+			Creators: []storage.MetadataCreator{
+				{Address: "PLATFORM_WALLET", Share: 5},  // Platform 5%
+				{Address: req.UserWallet, Share: 95},     // User 95%
+			},
+		},
+	}
+
+	metadataTxID, err := s.arweaveClient.UploadMetadata(ctx, nftMetadata)
+	if err != nil {
+		return nil, fmt.Errorf("failed to upload metadata to Arweave: %w", err)
+	}
+
+	metadataURI := fmt.Sprintf("ar://%s", metadataTxID)
+
+	// 3. Mint NFT on Solana with Arweave URIs
+	mintOpts := blockchain.MintOptions{
+		CreatorWallet: req.UserWallet,
+		MetadataURI:   metadataURI,
+		ArweaveTxID:   videoTxID,
+		Title:         req.Title,
+		Latitude:      req.Latitude,
+		Longitude:     req.Longitude,
+		Duration:      req.Duration,
+	}
+
+	result, err := s.solanaClient.MintNFT(ctx, mintOpts)
+	if err != nil {
+		return nil, fmt.Errorf("failed to mint NFT: %w", err)
+	}
+
+	// TODO: Save to database
+
+	return &MintResponse{
+		MintAddress: result.MintAddress,
+		MetadataURI: metadataURI,
+		ArweaveHash: videoTxID,
+		Transaction: "pending",
+		Status:      result.Status,
+		MintedAt:    time.Now(),
+	}, nil
+}
 
 // GetNFT retrieves NFT details by mint address
 func (s *Service) GetNFT(ctx context.Context, mintAddress string) (*NFTDetails, error) {

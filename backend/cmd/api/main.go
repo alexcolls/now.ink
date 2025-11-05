@@ -25,6 +25,12 @@ func main() {
 	}
 	defer db.Close()
 
+	// Ensure video storage directory exists
+	videoDir := "/tmp/nowink-videos"
+	if err := os.MkdirAll(videoDir, 0755); err != nil {
+		log.Fatal("❌ Failed to create video storage directory:", err)
+	}
+
 	// Create Fiber app
 	app := fiber.New(fiber.Config{
 		AppName:      "now.ink API v0.1.0",
