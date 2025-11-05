@@ -2,20 +2,26 @@ package nft
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
+
+	"github.com/alexcolls/now.ink/backend/internal/blockchain"
+	"github.com/alexcolls/now.ink/backend/internal/db"
+	"github.com/google/uuid"
 )
 
 // Service handles NFT minting operations
 type Service struct {
-	// TODO: Add Solana connection
-	// TODO: Add Metaplex client
-	// TODO: Add Arweave client
+	solanaClient *blockchain.SolanaClient
 }
 
 // NewService creates a new NFT service
 func NewService() *Service {
-	return &Service{}
+	client, _ := blockchain.NewSolanaClient()
+	return &Service{
+		solanaClient: client,
+	}
 }
 
 // MintRequest represents the data needed to mint an NFT
@@ -39,37 +45,149 @@ type MintResponse struct {
 	MintedAt     time.Time `json:"minted_at"`
 }
 
-// Mint mints a new NFT for a recorded moment
-func (s *Service) Mint(ctx context.Context, req *MintRequest) (*MintResponse, error) {
-	// TODO: Implement minting flow
-	// 1. Upload video to Arweave
-	// 2. Generate metadata JSON
-	// 3. Upload metadata to Arweave
-	// 4. Call Metaplex to mint NFT
-	// 5. Take platform commission
-	// 6. Return mint address
-
-	// Placeholder response
-	return &MintResponse{
-		MintAddress:  "test-mint-address-placeholder",
-		MetadataURI:  "ar://test-metadata-hash",
-		ArweaveHash:  "test-arweave-hash",
-		Transaction:  "test-transaction-signature",
-		Status:       "pending",
-		MintedAt:     time.Now(),
-	}, nil
-}
 
 // GetNFT retrieves NFT details by mint address
 func (s *Service) GetNFT(ctx context.Context, mintAddress string) (*NFTDetails, error) {
-	// TODO: Query Solana for NFT metadata
-	return nil, fmt.Errorf("not implemented")
+	query := `
+		SELECT mint_address, metadata_uri, title, creator_wallet, latitude, longitude, 
+		       timestamp, duration_seconds, video_url, thumbnail_url
+		FROM nfts
+		WHERE mint_address = $1
+	`
+
+	details := &NFTDetails{}
+	var title, videoURL, thumbnailURL sql.NullString
+	var durationSeconds sql.NullInt64
+
+	err := db.DB.QueryRowContext(ctx, query, mintAddress).Scan(
+		&details.MintAddress,
+		&details.MetadataURI,
+		&title,
+		&details.Creator,
+		&details.Latitude,
+		&details.Longitude,
+		&details.Timestamp,
+		&durationSeconds,
+		&videoURL,
+		&thumbnailURL,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("NFT not found")
+		}
+		return nil, err
+	}
+
+	if title.Valid {
+		details.Name = title.String
+	}
+	if videoURL.Valid {
+		details.VideoURL = videoURL.String
+	}
+	if thumbnailURL.Valid {
+		details.ThumbnailURL = thumbnailURL.String
+	}
+	if durationSeconds.Valid {
+		details.Duration = int(durationSeconds.Int64)
+	}
+
+	details.Symbol = "NOWINK"
+
+	return details, nil
 }
 
 // ListNFTs lists NFTs with filters
 func (s *Service) ListNFTs(ctx context.Context, filters *NFTFilters) ([]*NFTDetails, error) {
-	// TODO: Query database for NFTs
-	return nil, fmt.Errorf("not implemented")
+	query := `
+		SELECT mint_address, metadata_uri, title, creator_wallet, latitude, longitude,
+		       timestamp, duration_seconds, video_url, thumbnail_url
+		FROM nfts
+		WHERE 1=1
+	`
+	args := []interface{}{}
+	argCount := 1
+
+	// Add filters
+	if filters.Creator != "" {
+		query += fmt.Sprintf(" AND creator_wallet = $%d", argCount)
+		args = append(args, filters.Creator)
+		argCount++
+	}
+
+	if filters.StartDate != nil {
+		query += fmt.Sprintf(" AND timestamp >= $%d", argCount)
+		args = append(args, *filters.StartDate)
+		argCount++
+	}
+
+	if filters.EndDate != nil {
+		query += fmt.Sprintf(" AND timestamp <= $%d", argCount)
+		args = append(args, *filters.EndDate)
+		argCount++
+	}
+
+	// TODO: Add geographic radius filter using PostGIS
+
+	query += " ORDER BY timestamp DESC"
+
+	if filters.Limit > 0 {
+		query += fmt.Sprintf(" LIMIT $%d", argCount)
+		args = append(args, filters.Limit)
+		argCount++
+	}
+
+	if filters.Offset > 0 {
+		query += fmt.Sprintf(" OFFSET $%d", argCount)
+		args = append(args, filters.Offset)
+	}
+
+	rows, err := db.DB.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	nfts := []*NFTDetails{}
+	for rows.Next() {
+		details := &NFTDetails{}
+		var title, videoURL, thumbnailURL sql.NullString
+		var durationSeconds sql.NullInt64
+
+		err := rows.Scan(
+			&details.MintAddress,
+			&details.MetadataURI,
+			&title,
+			&details.Creator,
+			&details.Latitude,
+			&details.Longitude,
+			&details.Timestamp,
+			&durationSeconds,
+			&videoURL,
+			&thumbnailURL,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		if title.Valid {
+			details.Name = title.String
+		}
+		if videoURL.Valid {
+			details.VideoURL = videoURL.String
+		}
+		if thumbnailURL.Valid {
+			details.ThumbnailURL = thumbnailURL.String
+		}
+		if durationSeconds.Valid {
+			details.Duration = int(durationSeconds.Int64)
+		}
+
+		details.Symbol = "NOWINK"
+		nfts = append(nfts, details)
+	}
+
+	return nfts, rows.Err()
 }
 
 // NFTDetails represents complete NFT information
