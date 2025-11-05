@@ -1,0 +1,24 @@
+# Wallets (NEVER commit private keys!)
+wallets/
+*.json
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build output
+dist/
+build/
+*.js
+*.d.ts
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
