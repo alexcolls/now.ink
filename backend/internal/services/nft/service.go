@@ -117,7 +117,12 @@ func (s *Service) Mint(ctx context.Context, req *MintRequest) (*MintResponse, er
 		return nil, fmt.Errorf("failed to mint NFT: %w", err)
 	}
 
-	// TODO: Save to database
+	// Save to database
+	err = s.saveNFTToDatabase(ctx, req, result.MintAddress, metadataURI, videoTxID)
+	if err != nil {
+		// Log error but don't fail - NFT was already minted
+		fmt.Printf("⚠️  Failed to save NFT to database: %v\n", err)
+	}
 
 	return &MintResponse{
 		MintAddress: result.MintAddress,
@@ -127,6 +132,30 @@ func (s *Service) Mint(ctx context.Context, req *MintRequest) (*MintResponse, er
 		Status:      result.Status,
 		MintedAt:    time.Now(),
 	}, nil
+}
+
+// saveNFTToDatabase saves the minted NFT information to the database
+func (s *Service) saveNFTToDatabase(ctx context.Context, req *MintRequest, mintAddress, metadataURI, arweaveTxID string) error {
+	query := `
+		INSERT INTO nfts (id, mint_address, metadata_uri, creator_wallet, title, latitude, longitude, timestamp, duration_seconds, video_url, created_at)
+		VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+	`
+
+	videoURL := fmt.Sprintf("ar://%s", arweaveTxID)
+
+	_, err := db.DB.ExecContext(ctx, query,
+		mintAddress,
+		metadataURI,
+		req.UserWallet,
+		req.Title,
+		req.Latitude,
+		req.Longitude,
+		req.Timestamp,
+		req.Duration,
+		videoURL,
+	)
+
+	return err
 }
 
 // GetNFT retrieves NFT details by mint address
