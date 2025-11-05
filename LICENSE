@@ -1,0 +1,151 @@
+# now.ink Dual License
+
+Copyright (c) 2025 now.ink contributors
+
+---
+
+## License Summary
+
+**now.ink** is available under a dual licensing model:
+
+1. **FREE FOR PERSONAL USE** - Individuals may use, modify, and distribute this software for non-commercial purposes under the terms below.
+
+2. **COMMERCIAL LICENSE REQUIRED** - Businesses and organizations generating revenue must obtain a commercial license.
+
+---
+
+## FREE PERSONAL USE LICENSE
+
+### Permitted Uses (No License Required)
+
+You are **free to use this software** for personal, non-commercial purposes, including:
+
+- ✅ Personal projects and experimentation
+- ✅ Educational purposes and learning
+- ✅ Open-source contributions
+- ✅ Personal portfolios and demonstrations
+- ✅ Non-profit organizations
+- ✅ Academic research
+
+### Terms for Personal Use
+
+Permission is hereby granted, free of charge, to any individual obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction for **non-commercial purposes**, including without limitation the rights to use, copy, modify, merge, publish, and distribute copies of the Software, subject to the following conditions:
+
+1. **Attribution** - The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+2. **Non-Commercial** - The Software shall not be used for commercial purposes or revenue generation without a commercial license.
+
+3. **Share-Alike** - Any modifications or derivative works must be shared under the same license terms.
+
+4. **No Warranty** - THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+---
+
+## COMMERCIAL LICENSE REQUIRED
+
+### What Requires a Commercial License?
+
+You **must obtain a commercial license** if you:
+
+- ❌ Generate revenue from the software (ads, subscriptions, sales)
+- ❌ Use the software in a for-profit business
+- ❌ Charge users for access to services built with this software
+- ❌ Integrate the software into commercial products
+- ❌ Deploy the software for paying clients
+
+### Commercial License Benefits
+
+- ✅ Remove attribution requirements
+- ✅ Priority support from maintainers
+- ✅ Access to enterprise features
+- ✅ Legal protection and indemnification
+- ✅ Custom SLA agreements available
+
+### How to Obtain a Commercial License
+
+For commercial licensing inquiries, contact:
+
+- **Email:** license@now.ink (or your contact email)
+- **GitHub:** https://github.com/alexcolls/now.ink/issues (tag: licensing)
+
+Pricing is negotiated based on:
+- Company size and revenue
+- Number of users/deployments
+- Support requirements
+- Custom feature requests
+
+---
+
+## Definitions
+
+**Personal Use:** Use by an individual for non-commercial purposes, including personal projects, learning, and experimentation.
+
+**Commercial Use:** Any use that directly or indirectly generates revenue, including but not limited to: selling the software, offering paid services using the software, or integrating the software into commercial products.
+
+**Non-Profit:** Organizations officially registered as non-profit entities may use under the personal license.
+
+---
+
+## Platform Commission
+
+Regardless of license type, the **now.ink platform takes a 5% commission** on all NFT mints created through the official platform deployment. This commission structure is separate from the software license and applies to the service, not the code.
+
+---
+
+## Source Code Availability
+
+The source code for now.ink is available at:
+https://github.com/alexcolls/now.ink
+
+This availability does not grant commercial usage rights without a license.
+
+---
+
+## Enforcement
+
+- Personal use violations may result in account suspension
+- Commercial use without a license may result in legal action
+- We actively monitor for unauthorized commercial deployments
+- Bounties offered for reporting commercial use violations
+
+---
+
+## FAQ
+
+**Q: Can I fork this for my own personal project?**  
+A: Yes, for non-commercial personal use.
+
+**Q: Can I contribute to the open-source project while using it commercially?**  
+A: Yes, but you still need a commercial license for your usage.
+
+**Q: What if my startup isn't generating revenue yet?**  
+A: Contact us for a startup license (often free for early-stage companies).
+
+**Q: Can I modify the code for my business?**  
+A: Yes, but you need a commercial license to deploy it.
+
+**Q: What about non-profits?**  
+A: Non-profits can use the personal license.
+
+**Q: Can I self-host for free?**  
+A: Yes, for personal use. Commercial hosting requires a license.
+
+---
+
+## License Changes
+
+We reserve the right to update this license. Changes will be documented in CHANGELOG.md and will not retroactively apply to existing licensed users.
+
+---
+
+## Contact
+
+For licensing questions:
+- GitHub Issues (tag: licensing)
+- Email: license@now.ink (update with your actual email)
+
+---
+
+**Version:** 1.0  
+**Last Updated:** 2025-11-05  
+**Applicable From:** Version 0.1.0 onwards

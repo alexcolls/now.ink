@@ -3,8 +3,9 @@
 **Your life, minted.**
 
 ![License](https://img.shields.io/badge/license-Dual%20License-blue)
-![Status](https://img.shields.io/badge/status-pre--alpha-orange)
+![Status](https://img.shields.io/badge/status-MVP%20Complete-green)
 ![Solana](https://img.shields.io/badge/blockchain-Solana-blueviolet)
+![Version](https://img.shields.io/badge/version-0.2.0-blue)
 
 ---
 
@@ -26,34 +27,41 @@ If it wasn't caught bleeding, sweating, laughing in front of this lens, it doesn
 
 ## ✨ Core Features
 
-### 🎥 Live Streaming
-- Record video directly from your phone in real-time
-- Stream live to your followers (or selected viewers)
-- No uploads—everything captured in-app for authenticity
+### 🎥 Video Recording & Upload
+- ✅ Record video directly from your phone with GPS tagging
+- ✅ Real-time location capture
+- ✅ Secure multipart file upload (max 100MB)
+- ✅ No uploads—everything captured in-app for authenticity
 
-### 🪙 NFT Minting
-- Save a clip? It auto-mints as a Solana NFT via Metaplex
-- Embedded metadata: GPS coordinates, timestamp, user ID, video hash
-- Every clip is a unique, verifiable moment in space and time
-- Platform takes a small commission (% TBD) on mints—no ads, no privacy exploitation
+### 🪙 NFT Minting (Metaplex)
+- ✅ Auto-mint as Solana NFT via Metaplex SDK
+- ✅ Embedded metadata: GPS coordinates, timestamp, creator wallet
+- ✅ Permanent storage on Arweave
+- ✅ Platform takes 5% commission, creator gets 95%
+- ✅ Mock + production minting modes
 
-### 🗺️ Time-Travel Map
-- Google Maps-style interface with historical pins
-- Time-range slider: filter by today, last week, month, year, or further back
-- Zoom in to discover moments tied to specific locations
-- Free local playback (if you're physically near the location)
-- Premium tier unlocks global playback (pricing TBD)
+### 🗺️ Interactive Map
+- ✅ Google Maps with NFT markers
+- ✅ Custom camera icon pins
+- ✅ Tap markers to play videos
+- ✅ Auto-center on NFT locations
+- ✅ Stats bar with NFT count
+- 🔜 Time-range slider filtering
+- 🔜 Radius-based discovery
 
-### 🤝 Real Following, Zero Algorithm
-- Follow actual humans—no bots, no ghosts
-- Chronological feed: if you follow Alex, you see Alex's pins
-- No shadowbans, no pay-to-win reach
-- Public by default, auditable by design
+### 👤 User Profiles
+- ✅ Wallet-based authentication (JWT)
+- ✅ Personal NFT grid (2-column layout)
+- ✅ Stats counter (Moments/Followers/Following)
+- ✅ Filtered by connected wallet
+- 🔜 Follow/unfollow functionality
+- 🔜 Chronological feed
 
 ### 🔐 Privacy & Control
-- Choose public or private clips (friends-only)
-- No AI filters or edits—raw footage only
-- Users own their NFTs—trade, sell, or keep them forever
+- ✅ Wallet-based authentication
+- ✅ No AI filters or edits—raw footage only
+- ✅ Users own their NFTs—on Solana blockchain
+- ✅ Public by default (private coming soon)
 
 ---
 
@@ -61,14 +69,15 @@ If it wasn't caught bleeding, sweating, laughing in front of this lens, it doesn
 
 | Layer | Technology |
 |-------|-----------|
-| **Web Frontend** | Nuxt 4 (TypeScript) |
-| **Mobile App** | React Native (TypeScript) |
-| **Backend API** | Go (Fiber/Gin framework) |
-| **Blockchain** | Solana + Metaplex NFT Standard |
-| **Storage** | Arweave (decentralized, permanent) |
-| **Streaming** | WebRTC (low-latency) |
-| **Database** | TBD (MongoDB/PostgreSQL) |
-| **Wallets** | Phantom, Solflare integration |
+| **Mobile App** | React Native + Expo (TypeScript) ✅ |
+| **Backend API** | Go + Fiber framework ✅ |
+| **Blockchain** | Solana + Metaplex NFT Standard ✅ |
+| **Storage** | Arweave (permanent, decentralized) ✅ |
+| **Database** | PostgreSQL 16 + PostGIS ✅ |
+| **Wallets** | Solana Mobile Wallet Adapter ✅ |
+| **Maps** | React Native Maps (Google) ✅ |
+| **Video** | Expo AV + Expo Camera ✅ |
+| **Web Frontend** | Nuxt 4 (coming soon) 🔜 |
 
 ---
 
@@ -82,29 +91,22 @@ If it wasn't caught bleeding, sweating, laughing in front of this lens, it doesn
 
 ### Clone & Install
 ```bash
-git clone https://github.com/yourusername/now.ink.git
+git clone https://github.com/alexcolls/now.ink.git
 cd now.ink
 
-# Web frontend
-cd web
-npm install
-cp .env.sample .env
-npm run dev
-
-# Mobile app
-cd ../mobile
-npm install
-cp .env.sample .env
-npm run ios # or npm run android
-
 # Backend API
-cd ../backend
+cd backend
 go mod download
 cp .env.sample .env
 go run cmd/api/main.go
+
+# Mobile app (in separate terminal)
+cd mobile
+npm install
+npm start
 ```
 
-See **[docs/SETUP.md](docs/SETUP.md)** for detailed setup instructions.
+See **[MVP-COMPLETE.md](MVP-COMPLETE.md)** for testing guide and **[DEPLOYMENT.md](DEPLOYMENT.md)** for production deployment.
 
 ---
 
@@ -112,20 +114,20 @@ See **[docs/SETUP.md](docs/SETUP.md)** for detailed setup instructions.
 
 ```
 now.ink/
-├── web/                # Nuxt 4 web application
-├── mobile/             # React Native mobile app
-├── backend/            # Go API server
-├── blockchain/         # Solana/Metaplex contracts & scripts
-├── docs/               # Comprehensive documentation
-│   ├── ARCHITECTURE.md
-│   ├── API.md
-│   ├── BLOCKCHAIN.md
-│   ├── CONTRIBUTING.md
-│   ├── SETUP.md
-│   ├── USER_GUIDE.md
-│   ├── ROADMAP.md
-│   └── LICENSE.md
-└── README.md
+├── mobile/             # React Native + Expo app ✅
+├── backend/            # Go + Fiber API server ✅
+├── blockchain/         # Solana/Metaplex scripts ✅
+├── nginx/              # Reverse proxy config ✅
+├── scripts/            # Deployment automation ✅
+├── docs/               # Documentation
+├── DEPLOYMENT.md       # Production deployment guide ✅
+├── MOBILE-COMPLETE.md  # Mobile feature completion ✅
+├── MVP-COMPLETE.md     # MVP testing guide ✅
+├── FINAL-STATUS.md     # Project status summary ✅
+├── CHANGELOG.md        # Version history ✅
+├── LICENSE             # Dual license ✅
+├── CONTRIBUTING.md     # Contribution guidelines ✅
+└── README.md           # This file
 ```
 
 ---
@@ -133,30 +135,57 @@ now.ink/
 ## 📜 License
 
 **Dual License:**
-- **Free for personal use** under [GPL-3.0](docs/LICENSE.md) (or similar)
-- **Commercial license required** for profit-making entities
+- **Free for personal use** - Individual users can use, modify, and share freely
+- **Commercial license required** for businesses generating revenue
 
-See **[docs/LICENSE.md](docs/LICENSE.md)** for full details.
+See **[LICENSE](LICENSE)** for full details.
 
 ---
 
 ## 🤝 Contributing
 
-We're open-source by design. Fork it, fix it, ship it. See **[docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)** for guidelines.
+We're open-source by design. Fork it, fix it, ship it. See **[CONTRIBUTING.md](CONTRIBUTING.md)** for guidelines.
 
 **Why open-source?**  
 Because if we don't open-source the truth, who will? No black-box algorithms, no hidden feeds. Every line of code is auditable. Every decision is yours.
+
+**Pull requests welcome for:**
+- Bug fixes
+- Performance improvements
+- Documentation updates
+- New features (discuss in issues first)
 
 ---
 
 ## 🚀 Roadmap
 
-**Phase 1 (MVP):** Core recording, minting, basic map  
-**Phase 2:** Social features (following, public feed)  
-**Phase 3:** Premium tier & monetization  
-**Phase 4:** Advanced discovery, marketplace
+### ✅ Phase 1: MVP (Complete)
+- Video recording + GPS tagging
+- NFT minting on Solana
+- Interactive map with markers
+- User profiles with NFT grid
+- Arweave permanent storage
+- Docker deployment ready
 
-See **[docs/ROADMAP.md](docs/ROADMAP.md)** for detailed milestones.
+### 🔄 Phase 2: Launch Prep (In Progress)
+- Production server deployment
+- Mobile app store submissions
+- SSL & domain configuration
+- Beta testing with users
+
+### 🔜 Phase 3: Social Features
+- Follow/unfollow functionality
+- Chronological feed
+- User search
+- Notifications system
+
+### 🔜 Phase 4: Premium & Growth
+- Premium tier (global playback)
+- Web app (Nuxt 4)
+- Advanced map filtering
+- NFT marketplace integration
+
+See **[DEPLOYMENT-READY.md](DEPLOYMENT-READY.md)** for detailed next steps.
 
 ---
 
@@ -172,10 +201,11 @@ We fight the split: the kids in bubbles, the echo-chambers, the thirst traps eng
 
 ## 📞 Links
 
-- **Website:** [now.ink](https://now.ink)
-- **Docs:** [docs/](docs/)
-- **Issues:** [GitHub Issues](https://github.com/yourusername/now.ink/issues)
-- **Discord:** TBD
+- **GitHub:** [github.com/alexcolls/now.ink](https://github.com/alexcolls/now.ink)
+- **Documentation:** See root directory markdown files
+- **Issues:** [GitHub Issues](https://github.com/alexcolls/now.ink/issues)
+- **Version:** 0.2.0 (MVP Complete)
+- **Status:** Production-ready, deployment pending
 
 ---
 
