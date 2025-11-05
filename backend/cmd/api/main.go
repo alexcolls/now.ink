@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/alexcolls/now.ink/backend/internal/api/handlers"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -56,42 +57,9 @@ func main() {
 		})
 	})
 
-	// Auth routes
-	auth := api.Group("/auth")
-	auth.Post("/nonce", func(c *fiber.Ctx) error {
-		// TODO: Generate nonce for wallet signature
-		return c.JSON(fiber.Map{"nonce": "test-nonce-123"})
-	})
-	auth.Post("/verify", func(c *fiber.Ctx) error {
-		// TODO: Verify wallet signature and issue JWT
-		return c.JSON(fiber.Map{"token": "test-jwt-token"})
-	})
-
-	// Stream routes
-	streams := api.Group("/streams")
-	streams.Post("/start", func(c *fiber.Ctx) error {
-		// TODO: Start live stream
-		return c.JSON(fiber.Map{"message": "Stream started"})
-	})
-	streams.Post("/:id/end", func(c *fiber.Ctx) error {
-		// TODO: End stream
-		return c.JSON(fiber.Map{"message": "Stream ended"})
-	})
-	streams.Post("/:id/save", func(c *fiber.Ctx) error {
-		// TODO: Save stream as NFT (trigger minting)
-		return c.JSON(fiber.Map{"message": "Minting NFT..."})
-	})
-
-	// NFT routes
-	nfts := api.Group("/nfts")
-	nfts.Get("/", func(c *fiber.Ctx) error {
-		// TODO: List NFTs with filters
-		return c.JSON(fiber.Map{"nfts": []string{}})
-	})
-	nfts.Get("/:mint_address", func(c *fiber.Ctx) error {
-		// TODO: Get specific NFT
-		return c.JSON(fiber.Map{"nft": "details"})
-	})
+	// Initialize handlers
+	handlers := handlers.NewHandlers()
+	handlers.RegisterRoutes(api)
 
 	// Start server
 	port := getEnv("PORT", "8080")
